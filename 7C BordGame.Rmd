@@ -1,0 +1,60 @@
+#Libraries
+library(caret)
+library(rpart)
+
+
+# Read the board_games.csv dataset
+data <- read.csv("board_games.csv")
+
+# Extract the predictor variables and target variable
+predictors <- data[, c("max_players", "playtime", "min_age", "min_players", "age_of_game",
+                       "CardGame", "Wargame", "Fantasy", "Fighting", "Economic", "Science.Fiction",
+                       "Dice", "Party.Game", "AbstractStrategy", "Childrens.Game", "WorldWarll",
+                       "Bluffing", "Humor", "Animals", "Adventure", "Medieval", "Action.Dexterity",
+                       "Deduction", "Movies.TV.Radiotheme", "Miniatures")]
+target <- data$rating
+
+# Perform one-hot encoding on categorical variables
+encoded_data <- predict(dummyVars(rating ~ ., data = data), newdata = data)
+encoded_predictors <- encoded_data[, -length(encoded_data)]
+
+# Split the data into train and test sets
+set.seed(42)
+train_index <- createDataPartition(target, p = 0.8, list = FALSE)
+train_data <- encoded_predictors[train_index, ]
+test_data <- encoded_predictors[-train_index, ]
+train_target <- target[train_index]
+test_target <- target[-train_index]
+
+# Construct the regression tree (trees)
+trees <- rpart(train_target ~ ., data = train_data)
+
+# Calculate the RMSE of trees
+trees_pred <- predict(trees, newdata = test_data)
+rmse_trees <- sqrt(mean((trees_pred - test_target)^2))
+
+# Construct the regression tree (tree6)
+tree6 <- rpart(train_target ~ ., data = train_data, cp = 0.005)
+
+# Calculate the RMSE of tree6
+tree6_pred <- predict(tree6, newdata = test_data)
+rmse_tree6 <- sqrt(mean((tree6_pred - test_target)^2))
+
+# Construct the regression trees (tree7, tree8, tree9)
+tree7 <- rpart(train_target ~ ., data = train_data, cp = 0.001)
+tree8 <- rpart(train_target ~ ., data = train_data, cp = 0.0001)
+tree9 <- rpart(train_target ~ ., data = train_data, cp = 0.1)
+
+# Calculate the RMSE for tree7, tree8, and tree9
+tree7_pred <- predict(tree7, newdata = test_data)
+rmse_tree7 <- sqrt(mean((tree7_pred - test_target)^2))
+
+tree8_pred <- predict(tree8, newdata = test_data)
+rmse_tree8 <- sqrt(mean((tree8_pred - test_target)^2))
+
+tree9_pred <- predict(tree9, newdata = test_data)
+rmse_tree9 <- sqrt(mean((tree9_pred - test_target)^2))
+
+# Find the tree with the lowest RMSE on the test dataset
+lowest_rmse_test <- min(rmse_trees, rmse_tree6, rmse_tree7, rmse_tree8, rmse_tree9)
+lowest_rmse_test

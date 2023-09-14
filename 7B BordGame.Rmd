@@ -1,0 +1,41 @@
+# Question 1
+library(rpart)
+games <- read.csv("board_games.csv")
+tree1 <- rpart(rating ~ playtime, data = games)
+predicted_rating <- predict(tree1, newdata = data.frame(playtime = 120))
+round(predicted_rating, 1)
+
+# Question 2
+tree2 <- rpart(rating ~ Party.Game, data = games)
+predicted_rating_party_game <- predict(tree2, newdata = data.frame(Party.Game = "Yes"))
+round(predicted_rating_party_game, 1)
+
+# Question 3
+tree3 <- rpart(rating ~ max_players + playtime + min_age + age_of_game, data = games)
+rpart.plot(tree3, type = 4)  # Plot the regression tree
+
+# Question 4
+summary(tree3)$variable.importance
+
+# Question 5
+predicted_rating_board_game <- predict(tree3, newdata = data.frame(max_players = 8, playtime = 60, min_age = 12, min_players = 4, age_of_game = 10))
+round(predicted_rating_board_game, 1)
+
+# Question 6
+rmse_tree3 <- sqrt(mean((predicted_rating_board_game - games$rating)^2))
+round(rmse_tree3, 1)
+
+# Question 7
+tree4 <- rpart(rating ~ CardGame + Wargame + Fantasy + Fighting + Economic + Science.Fiction + Dice + Party.Game + AbstractStrategy + Childrens.Game + WorldWarII + Bluffing + Humor + Animals + Adventure + Medieval + Action.Dexterity + Deduction + Movies.TV.Radiotheme + Miniatures, data = games)
+rpart.plot(tree4, type = 4)  # Plot the regression tree
+
+# Question 8
+summary(tree4)$variable.importance
+
+# Question 9
+predicted_rating_board_game_categories <- predict(tree4, newdata = data.frame(CardGame = "No", Wargame = "Yes", Fantasy = "Yes", Fighting = "Yes", Economic = "No", Science.Fiction = "No", Dice = "No", Party.Game = "No", AbstractStrategy = "No", Childrens.Game = "No", WorldWarII = "No", Bluffing = "No", Humor = "No", Animals = "No", Adventure = "Yes", Medieval = "Yes", Action.Dexterity = "No", Deduction = "No", Movies.TV.Radiotheme = "No", Miniatures = "No"))
+round(predicted_rating_board_game_categories, 1)
+
+# Question 10
+rmse_tree4 <- sqrt(mean((predicted_rating_board_game_categories - games$rating)^2))
+round(rmse_tree4, 1)
