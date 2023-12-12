@@ -1,0 +1,23 @@
+# Question 1
+games <- read.csv("board_games.csv")
+set.seed(1031)
+sample_indices <- createDataPartition(games$rating, p = 0.7, list = FALSE)
+train_sample <- games[sample_indices, ]
+mean_rating_train <- mean(train_sample$rating)
+print(paste("Mean rating in the train sample:", mean_rating_train))
+
+# Question 2
+correlations <- cor(train_sample[c("min_age", "age_of_game", "max_players", "min_players", "playtime", "rating")])
+most_correlated_variable <- names(which.max(abs(correlations$rating)))[-6]
+print(paste("The most strongly correlated variable with game rating:", most_correlated_variable))
+
+# Question 3
+game_categories <- games[, 11:30]
+game_categories <- sapply(game_categories, function(x) ifelse(x == "Yes", 1, 0))
+most_popular_category <- names(which.max(colSums(game_categories)))
+print(paste("The most popular game category:", most_popular_category))
+
+# Question 4
+category_ratings <- cbind(games$rating, game_categories)
+highest_rated_category <- names(which.max(tapply(category_ratings[, 1], category_ratings[, most_popular_category + 1], mean)))
+print(paste("The game category with the highest rating:", highest_rated_category))
